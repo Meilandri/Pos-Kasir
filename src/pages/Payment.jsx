@@ -1,19 +1,40 @@
 import { useState } from 'react'
 import { calcOrder, METHODS, parseRp, rp } from '../lib.js'
 import Receipt from '../components/Receipt.jsx'
+import EditCustomerModal from '../components/EditCustomerModal.jsx'
+import AddProductModal from '../components/AddProductModal.jsx'
+import CancelOrderModal from '../components/CancelOrderModal.jsx'
 
-export default function Payment({ order, onBack, onComplete, onDone }) {
+export default function Payment({ order, onBack, onUpdate, onCancel, onComplete, onDone }) {
   const c = calcOrder(order)
   const [method, setMethod] = useState('cash')
   const [cash, setCash] = useState('')
   const [result, setResult] = useState(null) // { ok: true } atau { ok: false, msg }
   const [trx, setTrx] = useState(null)        // data transaksi untuk struk
+  const [editInfo, setEditInfo] = useState(false)
+  const [addOpen, setAddOpen] = useState(false)
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   const received = method === 'cash' ? parseRp(cash) : c.total
   const diff = received - c.total
   const canPay = diff >= 0
 
   const fmtInput = (v) => { const n = parseRp(v); setCash(n ? n.toLocaleString('id-ID') : '') }
+
+  // ---- Ubah detail pesanan (tersimpan langsung ke antrean) ----
+  const setItems = (items) => onUpdate({ ...order, items })
+  const changeQty = (sku, d) =>
+    setItems(order.items.map((i) => (i.sku === sku ? { ...i, qty: Math.max(1, i.qty + d) } : i)))
+  const removeItem = (sku) => {
+    if (order.items.length > 1) setItems(order.items.filter((i) => i.sku !== sku))
+  }
+  const addProduct = (p) => {
+    const exists = order.items.some((i) => i.sku === p.sku)
+    setItems(exists
+      ? order.items.map((i) => (i.sku === p.sku ? { ...i, qty: i.qty + 1 } : i))
+      : [...order.items, { sku: p.sku, name: p.name, qty: 1, price: p.price }])
+  }
+  const saveInfo = (patch) => { onUpdate({ ...order, ...patch }); setEditInfo(false) }
 
   const confirm = () => {
     if (!canPay) {
@@ -32,6 +53,8 @@ export default function Payment({ order, onBack, onComplete, onDone }) {
     }
   }
 
+  const editBtn = 'flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container-high text-xs font-semibold transition-colors'
+
   return (
     <>
       <div className="px-3 py-4 flex flex-col gap-4 max-w-[1600px] mx-auto">
@@ -42,31 +65,61 @@ export default function Payment({ order, onBack, onComplete, onDone }) {
           <span className="text-lg font-semibold">Validasi &amp; Pelunasan Kasir</span>
           <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-semibold uppercase">Menunggu Pembayaran</span>
           <span className="ml-auto text-xs text-on-surface-variant">No. Pesanan: <strong className="text-on-surface">#{order.id}</strong> · Sales: <strong className="text-on-surface">{order.sales}</strong></span>
+          <button onClick={() => setCancelOpen(true)} className="px-3 py-2 rounded-lg text-error hover:bg-error-container/60 text-xs font-semibold flex items-center gap-1">
+            <span className="material-symbols-outlined text-[18px]">cancel</span>Batalkan Pesanan
+          </button>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-4 items-start">
           {/* Kiri: data pelanggan & item */}
           <div className="lg:col-span-5 flex flex-col gap-3">
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm">
-              <div className="font-semibold text-lg mb-2">Data Pelanggan</div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="font-semibold text-lg">Data Pelanggan</div>
+                <button onClick={() => setEditInfo(true)} className={editBtn}>
+                  <span className="material-symbols-outlined text-[16px]">edit</span>Ubah
+                </button>
+              </div>
               <div className="p-3 bg-surface-container-low rounded-xl">
                 <div className="font-semibold">{order.customer}</div>
                 <div className="text-xs text-on-surface-variant">{order.phone}</div>
                 <div className="text-xs mt-2 p-2 bg-surface-container-lowest/60 rounded-lg">{order.address}
-                  <span className="block text-tertiary font-semibold">Metode: {order.delivery}</span></div>
+                  <span className="block text-tertiary font-semibold">Metode: {order.delivery}{order.shipping > 0 && ` · Ongkir ${rp(order.shipping)}`}</span></div>
               </div>
             </div>
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm flex flex-col gap-2">
-              <div className="font-semibold text-lg">Item Pesanan <span className="text-xs text-on-surface-variant">({c.units} unit)</span></div>
+              <div className="flex items-center justify-between">
+                <div className="font-semibold text-lg">Item Pesanan <span className="text-xs text-on-surface-variant">({c.units} unit)</span></div>
+                <button onClick={() => setAddOpen(true)} className={editBtn}>
+                  <span className="material-symbols-outlined text-[16px]">add</span>Tambah Barang
+                </button>
+              </div>
               {order.items.map((i) => (
-                <div key={i.sku} className="flex justify-between p-3 bg-surface-container-low rounded-xl gap-3">
-                  <div className="min-w-0">
-                    <div className="font-bold truncate">{i.name}</div>
-                    <div className="text-[11px] text-on-surface-variant">SKU: {i.sku} · {rp(i.price)} / unit</div>
+                <div key={i.sku} className="p-3 bg-surface-container-low rounded-xl flex flex-col gap-2">
+                  <div className="flex justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-bold truncate">{i.name}</div>
+                      <div className="text-[11px] text-on-surface-variant">SKU: {i.sku} · {rp(i.price)} / unit</div>
+                    </div>
+                    <div className="font-bold shrink-0">{rp(i.price * i.qty)}</div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <div className="font-bold">{rp(i.price * i.qty)}</div>
-                    <div className="text-[11px] font-bold text-primary">{i.qty} Unit</div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center bg-surface-container-lowest rounded-lg">
+                      <button onClick={() => changeQty(i.sku, -1)} disabled={i.qty <= 1} aria-label="Kurangi jumlah"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed">
+                        <span className="material-symbols-outlined text-[18px]">remove</span>
+                      </button>
+                      <span className="w-9 text-center font-bold">{i.qty}</span>
+                      <button onClick={() => changeQty(i.sku, 1)} aria-label="Tambah jumlah"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high">
+                        <span className="material-symbols-outlined text-[18px]">add</span>
+                      </button>
+                    </div>
+                    <button onClick={() => removeItem(i.sku)} disabled={order.items.length <= 1}
+                      title={order.items.length <= 1 ? 'Pesanan minimal berisi satu barang' : 'Hapus barang'}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-error hover:bg-error-container/60 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+                      <span className="material-symbols-outlined text-[16px]">delete</span>Hapus
+                    </button>
                   </div>
                 </div>
               ))}
@@ -123,7 +176,7 @@ export default function Payment({ order, onBack, onComplete, onDone }) {
                 </p>
               )}
               <div className="flex flex-col sm:flex-row gap-3">
-                <button onClick={onBack} className="sm:w-1/3 py-3.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest font-semibold">Batal / Tahan</button>
+                <button onClick={onBack} className="sm:w-1/3 py-3.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest font-semibold">Tahan</button>
                 <button onClick={confirm}
                   className="sm:w-2/3 py-3.5 rounded-xl bg-primary-container hover:bg-primary text-on-primary text-lg font-bold shadow-md flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined">receipt_long</span>Konfirmasi &amp; Selesaikan Pembayaran
@@ -154,6 +207,9 @@ export default function Payment({ order, onBack, onComplete, onDone }) {
         )}
       </div>
 
+      {editInfo && <EditCustomerModal order={order} onSave={saveInfo} onClose={() => setEditInfo(false)} />}
+      {addOpen && <AddProductModal items={order.items} onAdd={addProduct} onClose={() => setAddOpen(false)} />}
+      {cancelOpen && <CancelOrderModal order={order} onConfirm={(r) => onCancel(order, r)} onClose={() => setCancelOpen(false)} />}
       {trx && <Receipt trx={trx} onClose={onDone} />}
     </>
   )

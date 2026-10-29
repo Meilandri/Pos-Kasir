@@ -1,9 +1,13 @@
 import { useMemo, useState } from 'react'
 import { calcOrder, rp } from '../lib.js'
+import NewOrderModal from '../components/NewOrderModal.jsx'
+import CancelOrderModal from '../components/CancelOrderModal.jsx'
 
-export default function Queue({ orders, onPay }) {
+export default function Queue({ orders, onPay, onCreate, onCancel }) {
   const [q, setQ] = useState('')
   const [sort, setSort] = useState('newest')
+  const [newOpen, setNewOpen] = useState(false)
+  const [cancelTarget, setCancelTarget] = useState(null)
 
   const list = useMemo(() => {
     const term = q.toLowerCase()
@@ -34,11 +38,16 @@ export default function Queue({ orders, onPay }) {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari Order ID, nama customer, atau no. telepon"
             className="w-full bg-transparent outline-none" />
         </div>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-surface-container-low font-semibold py-2 px-3 rounded-lg outline-none">
-          <option value="newest">Paling Baru Masuk</option>
-          <option value="oldest">Waktu Antrean Terlama</option>
-          <option value="amount">Nominal Tertinggi</option>
-        </select>
+        <div className="flex items-center gap-3">
+          <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-surface-container-low font-semibold py-2.5 px-3 rounded-lg outline-none">
+            <option value="newest">Paling Baru Masuk</option>
+            <option value="oldest">Waktu Antrean Terlama</option>
+            <option value="amount">Nominal Tertinggi</option>
+          </select>
+          <button onClick={() => setNewOpen(true)} className="px-4 py-2.5 rounded-lg bg-primary hover:bg-secondary text-on-primary font-bold flex items-center gap-1.5 whitespace-nowrap">
+            <span className="material-symbols-outlined text-[20px]">add</span>Buat Antrean Baru
+          </button>
+        </div>
       </div>
 
       {list.length === 0 && <p className="text-center text-on-surface-variant py-16">Tidak ada pesanan di antrean.</p>}
@@ -73,14 +82,25 @@ export default function Queue({ orders, onPay }) {
                   <div className="text-[10px] text-on-surface-variant">Total Tagihan</div>
                   <div className="text-[22px] font-extrabold">{rp(c.total)}</div>
                 </div>
-                <button onClick={() => onPay(o.id)} className="px-4 py-2.5 rounded-lg bg-primary hover:brightness-105 active:scale-[0.98] text-on-primary font-bold shadow-sm flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[20px]">payments</span>Proses Pembayaran
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setCancelTarget(o)} className="px-3 py-2.5 rounded-lg text-error hover:bg-error-container/60 font-semibold text-xs flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[18px]">cancel</span>Batalkan
+                  </button>
+                  <button onClick={() => onPay(o.id)} className="px-4 py-2.5 rounded-lg bg-primary hover:brightness-105 active:scale-[0.98] text-on-primary font-bold shadow-sm flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[20px]">payments</span>Proses Pembayaran
+                  </button>
+                </div>
               </div>
             </div>
           )
         })}
       </div>
+
+      {newOpen && <NewOrderModal onClose={() => setNewOpen(false)} onSave={(data) => { onCreate(data); setNewOpen(false) }} />}
+      {cancelTarget && (
+        <CancelOrderModal order={cancelTarget} onClose={() => setCancelTarget(null)}
+          onConfirm={(reason) => { onCancel(cancelTarget, reason); setCancelTarget(null) }} />
+      )}
     </div>
   )
 }
