@@ -3,6 +3,7 @@ import { calcOrder, parseRp, rp } from '../lib.js'
 import { REQUEST_METHODS, SALES_LIST } from '../constants.js'
 import { DELIVERY } from './EditCustomerModal.jsx'
 import AddProductModal from './AddProductModal.jsx'
+import QtyInput from './QtyInput.jsx'
 
 const PICKUP = 'Ambil Mandiri di Toko'
 
@@ -17,11 +18,11 @@ export default function NewOrderModal({ onSave, onClose }) {
     const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
     const pickup = f.delivery === PICKUP
 
-    const addProduct = (p) =>
+    const addProduct = (p, qty = 1) =>
         setItems((its) => its.some((i) => i.sku === p.sku)
-            ? its.map((i) => (i.sku === p.sku ? { ...i, qty: i.qty + 1 } : i))
-            : [...its, { sku: p.sku, name: p.name, qty: 1, price: p.price }])
-    const changeQty = (sku, d) => setItems((its) => its.map((i) => (i.sku === sku ? { ...i, qty: Math.max(1, i.qty + d) } : i)))
+            ? its.map((i) => (i.sku === p.sku ? { ...i, qty: i.qty + qty } : i))
+            : [...its, { sku: p.sku, name: p.name, qty, price: p.price }])
+    const setQty = (sku, qty) => setItems((its) => its.map((i) => (i.sku === sku ? { ...i, qty } : i)))
     const removeItem = (sku) => setItems((its) => its.filter((i) => i.sku !== sku))
 
     const shipping = pickup ? 0 : parseRp(f.shipping)
@@ -93,11 +94,7 @@ export default function NewOrderModal({ onSave, onClose }) {
                                     <div className="text-[11px] text-on-surface-variant">{rp(i.price)} / unit · <strong className="text-on-surface">{rp(i.price * i.qty)}</strong></div>
                                 </div>
                                 <div className="flex items-center gap-1 shrink-0">
-                                    <div className="flex items-center bg-surface-container-lowest rounded-lg">
-                                        <button onClick={() => changeQty(i.sku, -1)} disabled={i.qty <= 1} aria-label="Kurangi jumlah" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high disabled:opacity-40"><span className="material-symbols-outlined text-[18px]">remove</span></button>
-                                        <span className="w-8 text-center font-bold">{i.qty}</span>
-                                        <button onClick={() => changeQty(i.sku, 1)} aria-label="Tambah jumlah" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high"><span className="material-symbols-outlined text-[18px]">add</span></button>
-                                    </div>
+                                    <QtyInput value={i.qty} onChange={(n) => setQty(i.sku, n)} />
                                     <button onClick={() => removeItem(i.sku)} aria-label="Hapus barang" className="w-8 h-8 flex items-center justify-center rounded-lg text-error hover:bg-error-container/60"><span className="material-symbols-outlined text-[18px]">delete</span></button>
                                 </div>
                             </div>
@@ -114,7 +111,7 @@ export default function NewOrderModal({ onSave, onClose }) {
                     </div>
                 </div>
             </div>
-            {addOpen && <AddProductModal items={items} onAdd={addProduct} onClose={() => setAddOpen(false)} />}
+            {addOpen && <AddProductModal items={items} onAdd={addProduct} onSetQty={setQty} onRemove={removeItem} onClose={() => setAddOpen(false)} />}
         </>
     )
 }

@@ -1,9 +1,16 @@
 import { useMemo, useState } from 'react'
 import { catalog } from '../catalog.js'
 import { rp } from '../lib.js'
+import QtyInput from './QtyInput.jsx'
 
-export default function AddProductModal({ items, onAdd, onClose }) {
+// Produk yang belum ada di pesanan: tampil tombol "Tambah".
+// Setelah ditambahkan (atau jika sudah ada di pesanan): tampil pengatur jumlah
+// yang terhubung langsung ke jumlah di pesanan (bisa klik −/+ atau ketik angkanya).
+// Saat jumlah 1, tombol − berubah jadi ikon hapus untuk mengeluarkan barang dari pesanan
+// (kecuali jumlah barang di pesanan sudah mencapai minItems).
+export default function AddProductModal({ items, onAdd, onSetQty, onRemove, minItems = 0, onClose }) {
     const [q, setQ] = useState('')
+
     const list = useMemo(() => {
         const t = q.toLowerCase()
         return catalog.filter((p) => `${p.name} ${p.sku}`.toLowerCase().includes(t))
@@ -31,14 +38,21 @@ export default function AddProductModal({ items, onAdd, onClose }) {
                     {list.map((p) => {
                         const n = qtyOf(p.sku)
                         return (
-                            <div key={p.sku} className="flex items-center justify-between gap-3 p-3 bg-surface-container-low rounded-xl">
-                                <div className="min-w-0">
+                            <div key={p.sku} className={`flex items-center justify-between gap-3 p-3 bg-surface-container-low rounded-xl ${n > 0 ? 'ring-1 ring-primary/40' : ''}`}>
+                                <div className="min-w-0 flex-1">
                                     <div className="font-bold truncate">{p.name}</div>
-                                    <div className="text-[11px] text-on-surface-variant">SKU: {p.sku} · {rp(p.price)}{n > 0 && <span className="text-primary font-bold"> · di pesanan: {n}</span>}</div>
+                                    <div className="text-[11px] text-on-surface-variant">SKU: {p.sku} · {rp(p.price)}</div>
                                 </div>
-                                <button onClick={() => onAdd(p)} className="shrink-0 px-3 py-2 rounded-lg bg-primary hover:bg-secondary text-on-primary text-xs font-bold flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[16px]">add</span>Tambah
-                                </button>
+                                <div className="shrink-0">
+                                    {n > 0 ? (
+                                        <QtyInput value={n} onChange={(v) => onSetQty(p.sku, v)}
+                                            onRemove={items.length > minItems ? () => onRemove(p.sku) : undefined} />
+                                    ) : (
+                                        <button onClick={() => onAdd(p)} className="px-3 py-2 rounded-lg bg-primary hover:bg-secondary text-on-primary text-xs font-bold flex items-center gap-1">
+                                            <span className="material-symbols-outlined text-[16px]">add</span>Tambah
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         )
                     })}

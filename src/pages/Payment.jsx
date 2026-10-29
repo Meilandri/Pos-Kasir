@@ -4,6 +4,7 @@ import Receipt from '../components/Receipt.jsx'
 import EditCustomerModal from '../components/EditCustomerModal.jsx'
 import AddProductModal from '../components/AddProductModal.jsx'
 import CancelOrderModal from '../components/CancelOrderModal.jsx'
+import QtyInput from '../components/QtyInput.jsx'
 
 export default function Payment({ order, onBack, onUpdate, onCancel, onComplete, onDone }) {
   const c = calcOrder(order)
@@ -23,16 +24,16 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
 
   // ---- Ubah detail pesanan (tersimpan langsung ke antrean) ----
   const setItems = (items) => onUpdate({ ...order, items })
-  const changeQty = (sku, d) =>
-    setItems(order.items.map((i) => (i.sku === sku ? { ...i, qty: Math.max(1, i.qty + d) } : i)))
+  const setQty = (sku, qty) =>
+    setItems(order.items.map((i) => (i.sku === sku ? { ...i, qty } : i)))
   const removeItem = (sku) => {
     if (order.items.length > 1) setItems(order.items.filter((i) => i.sku !== sku))
   }
-  const addProduct = (p) => {
+  const addProduct = (p, qty = 1) => {
     const exists = order.items.some((i) => i.sku === p.sku)
     setItems(exists
-      ? order.items.map((i) => (i.sku === p.sku ? { ...i, qty: i.qty + 1 } : i))
-      : [...order.items, { sku: p.sku, name: p.name, qty: 1, price: p.price }])
+      ? order.items.map((i) => (i.sku === p.sku ? { ...i, qty: i.qty + qty } : i))
+      : [...order.items, { sku: p.sku, name: p.name, qty, price: p.price }])
   }
   const saveInfo = (patch) => { onUpdate({ ...order, ...patch }); setEditInfo(false) }
 
@@ -104,17 +105,7 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
                     <div className="font-bold shrink-0">{rp(i.price * i.qty)}</div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center bg-surface-container-lowest rounded-lg">
-                      <button onClick={() => changeQty(i.sku, -1)} disabled={i.qty <= 1} aria-label="Kurangi jumlah"
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed">
-                        <span className="material-symbols-outlined text-[18px]">remove</span>
-                      </button>
-                      <span className="w-9 text-center font-bold">{i.qty}</span>
-                      <button onClick={() => changeQty(i.sku, 1)} aria-label="Tambah jumlah"
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high">
-                        <span className="material-symbols-outlined text-[18px]">add</span>
-                      </button>
-                    </div>
+                    <QtyInput value={i.qty} onChange={(n) => setQty(i.sku, n)} />
                     <button onClick={() => removeItem(i.sku)} disabled={order.items.length <= 1}
                       title={order.items.length <= 1 ? 'Pesanan minimal berisi satu barang' : 'Hapus barang'}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-error hover:bg-error-container/60 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
@@ -160,11 +151,6 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
                     <input value={cash} onChange={(e) => fmtInput(e.target.value)} placeholder="0" inputMode="numeric"
                       className="w-full bg-surface-container-lowest text-[20px] font-bold pl-12 pr-4 py-3 rounded-xl shadow-inner outline-none focus:ring-2 focus:ring-primary-container" />
                   </div>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {[c.total, 700000, 1000000].map((n) => (
-                      <button key={n} onClick={() => setCash(n.toLocaleString('id-ID'))} className="px-3 py-1.5 rounded-lg bg-surface-container-highest text-xs font-semibold">{n === c.total ? 'Uang Pas' : rp(n)}</button>
-                    ))}
-                  </div>
                   <div className={`p-3 rounded-xl flex justify-between items-center ${canPay ? 'bg-secondary-container/50' : 'bg-error-container/60'}`}>
                     <span className="font-semibold text-xs">{canPay ? 'Uang Kembalian Pelanggan' : 'Pembayaran Kurang'}</span>
                     <span className="text-[26px] font-bold">{canPay ? rp(diff) : rp(Math.abs(diff))}</span>
@@ -208,7 +194,7 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
       </div>
 
       {editInfo && <EditCustomerModal order={order} onSave={saveInfo} onClose={() => setEditInfo(false)} />}
-      {addOpen && <AddProductModal items={order.items} onAdd={addProduct} onClose={() => setAddOpen(false)} />}
+      {addOpen && <AddProductModal items={order.items} onAdd={addProduct} onSetQty={setQty} onRemove={removeItem} minItems={1} onClose={() => setAddOpen(false)} />}
       {cancelOpen && <CancelOrderModal order={order} onConfirm={(r) => onCancel(order, r)} onClose={() => setCancelOpen(false)} />}
       {trx && <Receipt trx={trx} onClose={onDone} />}
     </>
