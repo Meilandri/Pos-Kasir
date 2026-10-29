@@ -1,5 +1,73 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body { @apply bg-surface text-on-surface font-sans text-sm; margin: 0; overscroll-behavior: none; }
-::-webkit-scrollbar { display: none; }
+
+/* Warna tema (merah sesuai logo HEXAPos): terang (default) dan gelap (class "dark" di <html>) */
+:root {
+    color-scheme: light;
+    --surface: 247 247 248;
+    --primary: 208 0 0;
+    --secondary: 155 0 0;
+    --tertiary: 138 81 0;
+    --error: 186 26 26;
+    --on-primary: 255 255 255;
+    --on-error: 255 255 255;
+    --on-surface: 26 28 32;
+    --on-surface-variant: 68 71 78;
+    --primary-container: 229 57 53;
+    --on-primary-container: 140 0 0;
+    --primary-fixed: 255 218 212;
+    --secondary-container: 255 218 212;
+    --on-secondary-container: 122 0 0;
+    --tertiary-container: 228 146 0;
+    --error-container: 255 218 214;
+    --on-error-container: 147 0 10;
+    --surface-container-lowest: 255 255 255;
+    --surface-container-low: 241 241 243;
+    --surface-container: 235 235 238;
+    --surface-container-high: 228 228 232;
+    --surface-container-highest: 220 220 225;
+    --outline-variant: 207 207 212;
+    --inverse-surface: 43 43 48;
+    --inverse-on-surface: 241 241 243;
+}
+
+.dark {
+    color-scheme: dark;
+    --surface: 18 18 20;
+    --primary: 229 57 53;
+    --secondary: 183 28 28;
+    --tertiary: 255 185 95;
+    --error: 255 180 171;
+    --on-primary: 255 255 255;
+    --on-error: 105 0 5;
+    --on-surface: 228 226 227;
+    --on-surface-variant: 200 198 202;
+    --primary-container: 198 40 40;
+    --on-primary-container: 255 180 168;
+    --primary-fixed: 255 218 212;
+    --secondary-container: 92 26 20;
+    --on-secondary-container: 255 218 212;
+    --tertiary-container: 228 146 0;
+    --error-container: 147 0 10;
+    --on-error-container: 255 218 214;
+    --surface-container-lowest: 12 12 14;
+    --surface-container-low: 26 26 29;
+    --surface-container: 32 32 36;
+    --surface-container-high: 42 42 47;
+    --surface-container-highest: 53 53 59;
+    --outline-variant: 70 70 76;
+    --inverse-surface: 5 5 6;
+    --inverse-on-surface: 228 226 227;
+}
+
+body {
+    @apply bg-surface text-on-surface font-sans text-sm;
+    margin: 0;
+    overscroll-behavior: none;
+    transition: background-color .2s, color .2s;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}

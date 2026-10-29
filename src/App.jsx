@@ -20,16 +20,22 @@ export default function App() {
 
   const startPayment = (id) => { setActiveId(id); setPage('payment') }
 
-  // Dipanggil saat OK pada popup berhasil: pindahkan dari antrean ke riwayat
+  // Catat transaksi ke riwayat. Pesanan BELUM dihapus dari antrean,
+  // supaya halaman pembayaran tetap ada selama struk ditampilkan.
   const completePayment = (order, method, received) => {
     const trx = {
       trx: `TRX-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(90 + history.length).padStart(3, '0')}`,
       time: new Date(), method, received, cashier, order, ...calcOrder(order),
     }
     setHistory((h) => [trx, ...h])
-    setOrders((os) => os.filter((o) => o.id !== order.id))
-    setActiveId(null)
     return trx
+  }
+
+  // Dipanggil saat struk ditutup: hapus dari antrean lalu kembali ke antrean
+  const finishPayment = (id) => {
+    setOrders((os) => os.filter((o) => o.id !== id))
+    setActiveId(null)
+    setPage('queue')
   }
 
   return (
@@ -40,7 +46,7 @@ export default function App() {
         {page === 'queue' && <Queue orders={orders} onPay={startPayment} />}
         {page === 'payment' && active && (
           <Payment order={active} onBack={() => setPage('queue')}
-            onComplete={completePayment} onDone={() => setPage('queue')} />
+            onComplete={completePayment} onDone={() => finishPayment(active.id)} />
         )}
         {page === 'history' && <History history={history} />}
       </main>
