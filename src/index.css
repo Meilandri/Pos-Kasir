@@ -1,0 +1,5 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body { @apply bg-surface text-on-surface font-sans text-sm; margin: 0; overscroll-behavior: none; }
+::-webkit-scrollbar { display: none; }
