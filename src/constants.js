@@ -8,6 +8,9 @@ export const CANCEL_REASONS = [
     'Lainnya',
 ]
 
+// Pilihan pengiriman. 'Ambil Mandiri di Toko' tidak memerlukan alamat; Kurir Instan & Cargo wajib alamat.
+export const DELIVERY = ['Ambil Mandiri di Toko', 'Kurir Instan', 'Cargo']
+
 // Daftar sales & pengajuan pembayaran untuk form antrean baru (ganti dengan data asli/API).
 export const SALES_LIST = ['Kai Cenat', 'Dimas Aditya', 'Siti Rahma']
 export const REQUEST_METHODS = ['Tunai (Cash)', 'QRIS Dinamis', 'EDC BCA', 'EDC Mandiri', 'Transfer BCA VA']

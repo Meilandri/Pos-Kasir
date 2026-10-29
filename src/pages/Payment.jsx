@@ -5,9 +5,14 @@ import EditCustomerModal from '../components/EditCustomerModal.jsx'
 import AddProductModal from '../components/AddProductModal.jsx'
 import CancelOrderModal from '../components/CancelOrderModal.jsx'
 import QtyInput from '../components/QtyInput.jsx'
+import { DELIVERY } from '../constants.js'
+
+const PICKUP = 'Ambil Mandiri di Toko'
+const DELIVERY_ICON = { 'Ambil Mandiri di Toko': 'storefront', 'Kurir Instan': 'two_wheeler', Cargo: 'local_shipping' }
 
 export default function Payment({ order, onBack, onUpdate, onCancel, onComplete, onDone }) {
   const c = calcOrder(order)
+  const pickup = order.delivery === PICKUP
   const [method, setMethod] = useState('cash')
   const [cash, setCash] = useState('')
   const [result, setResult] = useState(null) // { ok: true } atau { ok: false, msg }
@@ -35,9 +40,17 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
       ? order.items.map((i) => (i.sku === p.sku ? { ...i, qty: i.qty + qty } : i))
       : [...order.items, { sku: p.sku, name: p.name, qty, price: p.price }])
   }
+  // ---- Pengiriman (tersimpan langsung ke pesanan) ----
+  const setDelivery = (d) =>
+    onUpdate({ ...order, delivery: d, ...(d === PICKUP ? { address: '-', shipping: 0 } : { address: order.address === '-' ? '' : order.address }) })
+  const setAddress = (address) => onUpdate({ ...order, address })
+  const setShipping = (v) => onUpdate({ ...order, shipping: parseRp(v) })
   const saveInfo = (patch) => { onUpdate({ ...order, ...patch }); setEditInfo(false) }
 
   const confirm = () => {
+    if (!pickup && !(order.address || '').trim()) {
+      return setResult({ ok: false, msg: 'Alamat pengiriman wajib diisi untuk Kurir Instan / Cargo.' })
+    }
     if (!canPay) {
       return setResult({ ok: false, msg: `Uang diterima kurang ${rp(Math.abs(diff))} dari total tagihan.` })
     }
@@ -84,8 +97,31 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
               <div className="p-3 bg-surface-container-low rounded-xl">
                 <div className="font-semibold">{order.customer}</div>
                 <div className="text-xs text-on-surface-variant">{order.phone}</div>
-                <div className="text-xs mt-2 p-2 bg-surface-container-lowest/60 rounded-lg">{order.address}
-                  <span className="block text-tertiary font-semibold">Metode: {order.delivery}{order.shipping > 0 && ` · Ongkir ${rp(order.shipping)}`}</span></div>
+                <div className="mt-2 p-2 bg-surface-container-lowest/60 rounded-lg flex flex-col gap-2">
+                  <div className="text-xs font-semibold">Pilih Pengiriman</div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {DELIVERY.map((d) => (
+                      <button key={d} onClick={() => setDelivery(d)}
+                        className={`flex flex-col items-center gap-1 p-2 rounded-lg text-[11px] font-semibold text-center transition-all ${order.delivery === d ? 'bg-primary-container text-on-primary shadow-sm' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'}`}>
+                        <span className="material-symbols-outlined text-[20px]">{DELIVERY_ICON[d]}</span>{d}
+                      </button>
+                    ))}
+                  </div>
+                  {!pickup && (
+                    <>
+                      <label className="flex flex-col gap-1 text-[11px] font-semibold">Alamat pengiriman
+                        <textarea rows={2} value={order.address === '-' ? '' : order.address} onChange={(e) => setAddress(e.target.value)}
+                          placeholder="Tulis alamat lengkap pengiriman"
+                          className="w-full bg-surface-container-low rounded-lg px-3 py-2 text-xs font-normal outline-none focus:ring-2 focus:ring-primary-container resize-none" />
+                      </label>
+                      <label className="flex flex-col gap-1 text-[11px] font-semibold">Biaya pengiriman (Rp)
+                        <input value={order.shipping ? order.shipping.toLocaleString('id-ID') : ''} onChange={(e) => setShipping(e.target.value)}
+                          inputMode="numeric" placeholder="0"
+                          className="w-full bg-surface-container-low rounded-lg px-3 py-2 text-xs font-normal outline-none focus:ring-2 focus:ring-primary-container" />
+                      </label>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm flex flex-col gap-2">

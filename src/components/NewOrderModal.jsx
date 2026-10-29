@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { calcOrder, parseRp, rp } from '../lib.js'
-import { REQUEST_METHODS, SALES_LIST } from '../constants.js'
-import { DELIVERY } from './EditCustomerModal.jsx'
+import { DELIVERY, REQUEST_METHODS, SALES_LIST } from '../constants.js'
 import AddProductModal from './AddProductModal.jsx'
 import QtyInput from './QtyInput.jsx'
 

@@ -66,16 +66,12 @@ export default function Queue({ orders, onPay, onCreate, onCancel }) {
                   <div className="font-mono text-xs text-on-surface-variant">{o.phone}</div>
                 </div>
                 <div className="text-xs text-on-surface-variant sm:text-right">
-                  Sales: <strong className="text-on-surface">{o.sales}</strong><br />{o.counter}
+                  Sales: <strong className="text-on-surface">{o.sales}</strong>
                 </div>
               </div>
               <div className="text-xs text-on-surface-variant">
                 <div className="font-semibold text-on-surface mb-0.5">{o.items.length} Jenis Produk ({c.units} Unit Total)</div>
                 {o.items.map((i) => <div key={i.sku}>• {i.name} ({i.qty}x)</div>)}
-              </div>
-              <div className="flex justify-between text-[11px] text-on-surface-variant border-t border-surface-container pt-2">
-                <span>Pengajuan: <strong>{o.requested}</strong></span>
-                <span className="font-semibold text-tertiary">{o.delivery}</span>
               </div>
               <div className="flex items-center justify-between bg-surface-container-low/30 -mx-4 -mb-4 px-4 py-3 rounded-b-xl border-t border-surface-container">
                 <div>

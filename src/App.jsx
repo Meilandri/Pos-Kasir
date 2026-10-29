@@ -10,7 +10,7 @@ import History from './pages/History.jsx'
 export default function App() {
   const [cashier, setCashier] = useState(null)      // { name, code }
   const [page, setPage] = useState('queue')         // queue | payment | history
-  const [orders, setOrders] = useState(initialOrders)
+  const [orders, setOrders] = useState(initialOrders.map((o) => ({ ...o, delivery: o.delivery === 'Kirim Ekspedisi Toko' ? 'Cargo' : o.delivery })))
   const [history, setHistory] = useState([])
   const [activeId, setActiveId] = useState(null)
 

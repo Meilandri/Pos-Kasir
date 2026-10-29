@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { parseRp } from '../lib.js'
+import { DELIVERY } from '../constants.js'
 
-export const DELIVERY = ['Kirim Ekspedisi Toko', 'Kurir Instan', 'Ambil Mandiri di Toko']
 const PICKUP = 'Ambil Mandiri di Toko'
 
 export default function EditCustomerModal({ order, onSave, onClose }) {
