@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { initialOrders } from './data.js'
 import { calcOrder } from './lib.js'
 import Header from './components/Header.jsx'
@@ -7,14 +7,36 @@ import Queue from './pages/Queue.jsx'
 import Payment from './pages/Payment.jsx'
 import History from './pages/History.jsx'
 
+// Simpan sesi login & halaman aktif di browser agar tidak hilang saat refresh
+const read = (k, fallback) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback } catch { return fallback } }
+const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)) } catch { /* abaikan */ } }
+
 export default function App() {
-  const [cashier, setCashier] = useState(null)      // { name, code }
-  const [page, setPage] = useState('queue')         // queue | payment | history
-  const [orders, setOrders] = useState(initialOrders.map((o) => ({ ...o, delivery: o.delivery === 'Kirim Ekspedisi Toko' ? 'Cargo' : o.delivery })))
-  const [history, setHistory] = useState([])
+  const [cashier, setCashier] = useState(() => read('pos.cashier', null))      // { name, code }
+  const [page, setPage] = useState(() => read('pos.page', 'queue'))         // queue | payment | history
+  // Antrean & riwayat disimpan di browser (localStorage) agar tidak hilang saat di-refresh
+  const [orders, setOrders] = useState(() => {
+    const saved = read('pos.orders', null)
+    return Array.isArray(saved) ? saved
+      : initialOrders.map((o) => ({ ...o, delivery: o.delivery === 'Kirim Ekspedisi Toko' ? 'Cargo' : o.delivery }))
+  })
+  const [history, setHistory] = useState(() => {
+    const saved = read('pos.history', [])
+    // waktu disimpan sebagai teks, ubah kembali menjadi Date
+    return Array.isArray(saved) ? saved.map((h) => ({ ...h, time: new Date(h.time) })) : []
+  })
   const [activeId, setActiveId] = useState(null)
 
-  if (!cashier) return <Login onLogin={setCashier} />
+  // Halaman pembayaran tidak dipulihkan (butuh pesanan aktif), jadi kembali ke antrean
+  useEffect(() => { write('pos.page', page === 'payment' ? 'queue' : page) }, [page])
+  useEffect(() => { if (page === 'payment' && !activeId) setPage('queue') }, [page, activeId])
+  useEffect(() => { write('pos.orders', orders) }, [orders])
+  useEffect(() => { write('pos.history', history) }, [history])
+
+  const login = (c) => { write('pos.cashier', c); setCashier(c) }
+  const logout = () => { write('pos.cashier', null); setCashier(null); setPage('queue') }
+
+  if (!cashier) return <Login onLogin={login} />
 
   const active = orders.find((o) => o.id === activeId)
 
@@ -63,7 +85,7 @@ export default function App() {
   return (
     <>
       <Header page={page} setPage={setPage} cashier={cashier} queueCount={orders.length}
-        onLogout={() => { setCashier(null); setPage('queue') }} />
+        onLogout={logout} />
       <main className="pt-20 min-h-screen">
         {page === 'queue' && <Queue orders={orders} onPay={startPayment} onCreate={createOrder} onCancel={cancelOrder} />}
         {page === 'payment' && active && (

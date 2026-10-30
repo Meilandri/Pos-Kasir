@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import { accounts } from '../accounts.js'
 
+// Akun sementara yang terisi otomatis di form login (tahap awal/pengembangan).
+// Matikan dengan membuat file .env berisi VITE_DEMO_LOGIN=false (atau set di pengaturan Environment Variables Vercel).
+const DEMO = { email: 'kasir1@furnipos.id', password: 'kasir123' }
+const DEMO_ON = import.meta.env.VITE_DEMO_LOGIN !== 'false'
+
 export default function Login({ onLogin }) {
-  const [email, setEmail] = useState('')
-  const [pass, setPass] = useState('')
+  const [email, setEmail] = useState(DEMO_ON ? DEMO.email : '')
+  const [pass, setPass] = useState(DEMO_ON ? DEMO.password : '')
   const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
