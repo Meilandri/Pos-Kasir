@@ -1,21 +1,14 @@
 import { useState } from 'react'
-import { calcOrder, parseRp, rp } from '../lib.js'
-import { DELIVERY, REQUEST_METHODS, SALES_LIST } from '../constants.js'
+import { calcOrder, rp } from '../lib.js'
 import AddProductModal from './AddProductModal.jsx'
 import QtyInput from './QtyInput.jsx'
 
-const PICKUP = 'Ambil Mandiri di Toko'
-
 export default function NewOrderModal({ onSave, onClose }) {
-    const [f, setF] = useState({
-        customer: '', phone: '', sales: SALES_LIST[0], requested: REQUEST_METHODS[0],
-        delivery: PICKUP, address: '', shipping: '',
-    })
+    const [f, setF] = useState({ customer: '', phone: '' })
     const [items, setItems] = useState([])
     const [addOpen, setAddOpen] = useState(false)
     const [err, setErr] = useState('')
     const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
-    const pickup = f.delivery === PICKUP
 
     const addProduct = (p, qty = 1) =>
         setItems((its) => its.some((i) => i.sku === p.sku)
@@ -24,19 +17,18 @@ export default function NewOrderModal({ onSave, onClose }) {
     const setQty = (sku, qty) => setItems((its) => its.map((i) => (i.sku === sku ? { ...i, qty } : i)))
     const removeItem = (sku) => setItems((its) => its.filter((i) => i.sku !== sku))
 
-    const shipping = pickup ? 0 : parseRp(f.shipping)
-    const draft = { items, shipping, discount: 0 }
+    const draft = { items, shipping: 0, discount: 0 }
     const total = items.length ? calcOrder(draft).total : 0
 
     const save = () => {
         if (!f.customer.trim()) return setErr('Nama pembeli wajib diisi.')
         if (!f.phone.trim()) return setErr('Nomor telepon wajib diisi.')
-        if (!pickup && !f.address.trim()) return setErr('Alamat pengiriman wajib diisi.')
         if (items.length === 0) return setErr('Tambahkan minimal satu barang.')
+        // Sales, pengajuan pembayaran, dan pengiriman memakai nilai awal; pengiriman bisa diubah di halaman pembayaran.
         onSave({
-            customer: f.customer.trim(), phone: f.phone.trim(), sales: f.sales, counter: 'Dibuat di kasir',
-            requested: f.requested, delivery: f.delivery, address: pickup ? '-' : f.address.trim(),
-            shipping, discount: 0, items,
+            customer: f.customer.trim(), phone: f.phone.trim(), sales: '-', counter: 'Dibuat di kasir',
+            requested: 'Tunai (Cash)', delivery: 'Ambil Mandiri di Toko', address: '-',
+            shipping: 0, discount: 0, items,
         })
     }
 
@@ -57,27 +49,7 @@ export default function NewOrderModal({ onSave, onClose }) {
                         <div className="grid sm:grid-cols-2 gap-3">
                             <label className={label}>Nama pembeli<input className={input} value={f.customer} onChange={set('customer')} /></label>
                             <label className={label}>No. telepon<input className={input} value={f.phone} onChange={set('phone')} inputMode="tel" placeholder="+62 ..." /></label>
-                            <label className={label}>Sales
-                                <select className={input} value={f.sales} onChange={set('sales')}>{SALES_LIST.map((s) => <option key={s}>{s}</option>)}</select>
-                            </label>
-                            <label className={label}>Pengajuan pembayaran
-                                <select className={input} value={f.requested} onChange={set('requested')}>{REQUEST_METHODS.map((s) => <option key={s}>{s}</option>)}</select>
-                            </label>
-                            <label className={label}>Metode pengiriman
-                                <select className={input} value={f.delivery} onChange={set('delivery')}>{DELIVERY.map((d) => <option key={d}>{d}</option>)}</select>
-                            </label>
-                            {!pickup && (
-                                <label className={label}>Biaya pengiriman (Rp)
-                                    <input className={input} inputMode="numeric" placeholder="0" value={f.shipping}
-                                        onChange={(e) => { const n = parseRp(e.target.value); setF({ ...f, shipping: n ? n.toLocaleString('id-ID') : '' }) }} />
-                                </label>
-                            )}
                         </div>
-                        {!pickup && (
-                            <label className={label}>Alamat pengiriman
-                                <textarea className={input + ' resize-none'} rows={2} value={f.address} onChange={set('address')} />
-                            </label>
-                        )}
 
                         <div className="flex items-center justify-between pt-1">
                             <span className="font-semibold">Barang <span className="text-xs text-on-surface-variant">({items.reduce((s, i) => s + i.qty, 0)} unit)</span></span>

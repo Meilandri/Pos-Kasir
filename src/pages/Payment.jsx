@@ -157,7 +157,7 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
                 <Row l="PPN 11%" v={rp(c.ppn)} />
                 <div className="flex justify-between items-center bg-surface-container-low p-3 rounded-lg">
                   <span className="text-lg font-semibold text-on-surface">Total Tagihan Final</span>
-                  <span className="text-[22px] font-bold text-primary">{rp(c.total)}</span>
+                  <span className="text-[22px] font-bold">{rp(c.total)}</span>
                 </div>
               </div>
             </div>
@@ -165,8 +165,8 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
 
           {/* Kanan: pembayaran */}
           <div className="lg:col-span-7 flex flex-col gap-3">
-            <div className="bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-xl p-4 shadow-md">
-              <div className="text-sm font-semibold uppercase text-primary-fixed">Total Harus Dibayar</div>
+            <div className="bg-ink text-on-ink border-l-4 border-accent rounded-xl p-4 shadow-md">
+              <div className="text-sm font-semibold uppercase text-on-ink/60">Total Harus Dibayar</div>
               <div className="text-[36px] font-bold leading-tight">{rp(c.total)}</div>
             </div>
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm flex flex-col gap-4">
@@ -187,7 +187,7 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
                     <input value={cash} onChange={(e) => fmtInput(e.target.value)} placeholder="0" inputMode="numeric"
                       className="w-full bg-surface-container-lowest text-[20px] font-bold pl-12 pr-4 py-3 rounded-xl shadow-inner outline-none focus:ring-2 focus:ring-primary-container" />
                   </div>
-                  <div className={`p-3 rounded-xl flex justify-between items-center ${canPay ? 'bg-secondary-container/50' : 'bg-error-container/60'}`}>
+                  <div className={`p-3 rounded-xl flex justify-between items-center ${canPay ? 'bg-success-container text-on-success-container' : 'bg-error-container/60'}`}>
                     <span className="font-semibold text-xs">{canPay ? 'Uang Kembalian Pelanggan' : 'Pembayaran Kurang'}</span>
                     <span className="text-[26px] font-bold">{canPay ? rp(diff) : rp(Math.abs(diff))}</span>
                   </div>
@@ -198,9 +198,9 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
                 </p>
               )}
               <div className="flex flex-col sm:flex-row gap-3">
-                <button onClick={onBack} className="sm:w-1/3 py-3.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest font-semibold">Tahan</button>
+                <button onClick={onBack} className="sm:w-1/3 py-3.5 rounded-xl bg-accent hover:brightness-90 text-white font-semibold">Tahan</button>
                 <button onClick={confirm}
-                  className="sm:w-2/3 py-3.5 rounded-xl bg-primary-container hover:bg-primary text-on-primary text-lg font-bold shadow-md flex items-center justify-center gap-2">
+                  className="sm:w-2/3 py-3.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-lg font-bold shadow-md flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined">receipt_long</span>Konfirmasi &amp; Selesaikan Pembayaran
                 </button>
               </div>
@@ -211,7 +211,7 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
         {result && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-inverse-surface/60 backdrop-blur-sm">
             <div className="w-full max-w-sm bg-surface-container-lowest rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center gap-3">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${result.ok ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'}`}>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${result.ok ? 'bg-success-container text-success' : 'bg-error-container text-on-error-container'}`}>
                 <span className="material-symbols-outlined text-[40px]">{result.ok ? 'check_circle' : 'error'}</span>
               </div>
               <h2 className="text-[22px] font-bold">{result.ok ? 'Pembayaran Berhasil' : 'Pembayaran Gagal'}</h2>

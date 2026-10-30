@@ -2,63 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Warna tema (merah sesuai logo HEXAPos): terang (default) dan gelap (class "dark" di <html>) */
+/* Palet HEXA ~60:30:10 = putih/silver : hitam : merah.
+   Merah hanya lewat token "accent"; tombol/pilihan umum memakai hitam (primary) dan silver. */
 :root {
     color-scheme: light;
-    --surface: 247 247 248;
-    --primary: 208 0 0;
-    --secondary: 155 0 0;
+    --surface: 245 246 248;
+    --primary: 17 19 24;
+    --secondary: 43 47 54;
     --tertiary: 138 81 0;
-    --error: 186 26 26;
+    --error: 194 65 12;
+    --accent: 208 0 0;
     --on-primary: 255 255 255;
     --on-error: 255 255 255;
-    --on-surface: 26 28 32;
-    --on-surface-variant: 68 71 78;
-    --primary-container: 229 57 53;
-    --on-primary-container: 140 0 0;
-    --primary-fixed: 255 218 212;
-    --secondary-container: 255 218 212;
-    --on-secondary-container: 122 0 0;
+    --on-surface: 17 19 24;
+    --on-surface-variant: 91 97 107;
+    --primary-container: 43 47 54;
+    --on-primary-container: 255 255 255;
+    --primary-fixed: 227 229 234;
+    --secondary-container: 227 229 234;
+    --on-secondary-container: 43 47 54;
     --tertiary-container: 228 146 0;
-    --error-container: 255 218 214;
-    --on-error-container: 147 0 10;
+    --error-container: 255 237 213;
+    --on-error-container: 124 45 18;
+    --success: 21 128 61;
+    --success-container: 220 252 231;
+    --on-success-container: 20 83 45;
+    --ink: 17 19 24;
+    --on-ink: 255 255 255;
     --surface-container-lowest: 255 255 255;
-    --surface-container-low: 241 241 243;
-    --surface-container: 235 235 238;
-    --surface-container-high: 228 228 232;
-    --surface-container-highest: 220 220 225;
-    --outline-variant: 207 207 212;
-    --inverse-surface: 43 43 48;
-    --inverse-on-surface: 241 241 243;
+    --surface-container-low: 240 241 244;
+    --surface-container: 231 233 237;
+    --surface-container-high: 223 226 231;
+    --surface-container-highest: 211 215 222;
+    --outline-variant: 196 200 208;
+    --inverse-surface: 11 12 15;
+    --inverse-on-surface: 240 241 244;
 }
 
 .dark {
     color-scheme: dark;
-    --surface: 18 18 20;
-    --primary: 229 57 53;
-    --secondary: 183 28 28;
+    --surface: 15 16 18;
+    --primary: 228 230 235;
+    --secondary: 255 255 255;
     --tertiary: 255 185 95;
-    --error: 255 180 171;
-    --on-primary: 255 255 255;
-    --on-error: 105 0 5;
-    --on-surface: 228 226 227;
-    --on-surface-variant: 200 198 202;
-    --primary-container: 198 40 40;
-    --on-primary-container: 255 180 168;
-    --primary-fixed: 255 218 212;
-    --secondary-container: 92 26 20;
-    --on-secondary-container: 255 218 212;
+    --error: 251 146 60;
+    --accent: 229 57 53;
+    --on-primary: 17 19 24;
+    --on-error: 67 20 7;
+    --on-surface: 236 236 239;
+    --on-surface-variant: 162 167 176;
+    --primary-container: 211 215 222;
+    --on-primary-container: 17 19 24;
+    --primary-fixed: 49 52 58;
+    --secondary-container: 42 44 49;
+    --on-secondary-container: 201 204 211;
     --tertiary-container: 228 146 0;
-    --error-container: 147 0 10;
-    --on-error-container: 255 218 214;
-    --surface-container-lowest: 12 12 14;
-    --surface-container-low: 26 26 29;
-    --surface-container: 32 32 36;
-    --surface-container-high: 42 42 47;
-    --surface-container-highest: 53 53 59;
-    --outline-variant: 70 70 76;
-    --inverse-surface: 5 5 6;
-    --inverse-on-surface: 228 226 227;
+    --error-container: 124 45 18;
+    --on-error-container: 255 237 213;
+    --success: 74 222 128;
+    --success-container: 20 83 45;
+    --on-success-container: 187 247 208;
+    --ink: 0 0 0;
+    --on-ink: 255 255 255;
+    --surface-container-lowest: 10 10 11;
+    --surface-container-low: 23 24 27;
+    --surface-container: 29 30 34;
+    --surface-container-high: 38 40 45;
+    --surface-container-highest: 49 52 58;
+    --outline-variant: 61 64 71;
+    --inverse-surface: 0 0 0;
+    --inverse-on-surface: 236 236 239;
 }
 
 body {

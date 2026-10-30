@@ -64,7 +64,7 @@ export default function History({ history }) {
       </div>
       <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-x-auto">
         <table className="w-full text-left">
-          <thead className="bg-surface-container-low text-on-surface-variant text-xs">
+          <thead className="bg-ink text-on-ink text-xs">
             <tr>{['No Transaksi', 'Sales', 'Pelanggan', 'Rincian Barang', 'Total Bayar', 'Metode', 'Status', 'Aksi'].map((h) => <th key={h} className="p-3 font-semibold whitespace-nowrap">{h}</th>)}</tr>
           </thead>
           <tbody>
@@ -74,7 +74,7 @@ export default function History({ history }) {
               return (
                 <tr key={h.trx} className="hover:bg-surface-container-low/60 align-top">
                   <td className="p-3">
-                    <div className={`font-mono font-bold ${x ? 'text-error' : 'text-primary'}`}>#{h.trx}</div>
+                    <div className={`font-mono font-bold ${x ? 'text-error' : 'text-on-surface'}`}>#{h.trx}</div>
                     <div className="text-xs text-on-surface-variant">{x && <>#{h.order.id} · </>}{h.time.toLocaleTimeString('id-ID')}</div>
                   </td>
                   <td className="p-3 font-semibold">{h.order.sales}</td>
@@ -89,7 +89,7 @@ export default function History({ history }) {
                         <div className="text-xs text-on-surface-variant mt-1.5 max-w-[220px]">Alasan: {h.reason}</div>
                       </>
                     ) : (
-                      <span className="px-3 py-1 rounded-full bg-primary-container/20 text-on-primary-container text-xs font-bold">LUNAS</span>
+                      <span className="px-3 py-1 rounded-full bg-success-container text-on-success-container text-xs font-bold">LUNAS</span>
                     )}
                   </td>
                   <td className="p-3">
