@@ -19,7 +19,7 @@ export default function AddProductModal({ items, onAdd, onSetQty, onRemove, minI
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-inverse-surface/60 backdrop-blur-sm" onClick={onClose}>
-            <div className="w-full max-w-lg bg-surface-container-lowest rounded-2xl shadow-2xl flex flex-col max-h-[92vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-lg bg-surface-container-lowest rounded-2xl shadow-2xl flex flex-col max-h-[92dvh]" onClick={(e) => e.stopPropagation()}>
                 <div className="px-5 py-4 flex items-center justify-between">
                     <span className="text-lg font-semibold">Tambah Barang</span>
                     <button onClick={onClose} aria-label="Tutup" className="w-8 h-8 rounded-lg hover:bg-surface-container flex items-center justify-center">

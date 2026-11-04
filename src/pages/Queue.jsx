@@ -1,12 +1,10 @@
 import { useMemo, useState } from 'react'
 import { calcOrder, rp } from '../lib.js'
-import NewOrderModal from '../components/NewOrderModal.jsx'
 import CancelOrderModal from '../components/CancelOrderModal.jsx'
 
-export default function Queue({ orders, onPay, onCreate, onCancel }) {
+export default function Queue({ orders, onPay, onNew, onCancel }) {
   const [q, setQ] = useState('')
   const [sort, setSort] = useState('newest')
-  const [newOpen, setNewOpen] = useState(false)
   const [cancelTarget, setCancelTarget] = useState(null)
 
   const list = useMemo(() => {
@@ -38,14 +36,14 @@ export default function Queue({ orders, onPay, onCreate, onCancel }) {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari Order ID, nama customer, atau no. telepon"
             className="w-full bg-transparent outline-none" />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="grid grid-cols-2 gap-3 lg:flex lg:items-center">
           <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-surface-container-low font-semibold py-2.5 px-3 rounded-lg outline-none">
             <option value="newest">Paling Baru Masuk</option>
             <option value="oldest">Waktu Antrean Terlama</option>
             <option value="amount">Nominal Tertinggi</option>
           </select>
-          <button onClick={() => setNewOpen(true)} className="px-4 py-2.5 rounded-lg bg-primary hover:bg-secondary text-on-primary font-bold flex items-center gap-1.5 whitespace-nowrap">
-            <span className="material-symbols-outlined text-[20px]">add</span>Buat Antrean Baru
+          <button onClick={onNew} className="px-3 sm:px-4 py-2.5 rounded-lg bg-primary hover:bg-secondary text-on-primary font-bold flex items-center justify-center gap-1.5 whitespace-nowrap">
+            <span className="material-symbols-outlined text-[20px]">add</span><span className="sm:hidden">Antrean Baru</span><span className="hidden sm:inline">Buat Antrean Baru</span>
           </button>
         </div>
       </div>
@@ -62,7 +60,7 @@ export default function Queue({ orders, onPay, onCreate, onCancel }) {
               </div>
               <div className="grid sm:grid-cols-2 gap-3 p-2 rounded-xl bg-surface-container-low/40">
                 <div>
-                  <div className="font-bold">{o.customer}</div>
+                  <div className={`font-bold ${o.customer ? '' : 'text-on-surface-variant italic'}`}>{o.customer || 'Pembeli belum diisi'}</div>
                   <div className="font-mono text-xs text-on-surface-variant">{o.phone}</div>
                 </div>
                 <div className="text-xs text-on-surface-variant sm:text-right">
@@ -73,16 +71,16 @@ export default function Queue({ orders, onPay, onCreate, onCancel }) {
                 <div className="font-semibold text-on-surface mb-0.5">{o.items.length} Jenis Produk ({c.units} Unit Total)</div>
                 {o.items.map((i) => <div key={i.sku}>• {i.name} ({i.qty}x)</div>)}
               </div>
-              <div className="flex items-center justify-between bg-surface-container-low/30 -mx-4 -mb-4 px-4 py-3 rounded-b-xl border-t border-surface-container">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-surface-container-low/30 -mx-4 -mb-4 px-4 py-3 rounded-b-xl border-t border-surface-container">
                 <div>
                   <div className="text-[10px] text-on-surface-variant">Total Tagihan</div>
                   <div className="text-[22px] font-extrabold">{rp(c.total)}</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 [&>button:last-child]:flex-1 sm:[&>button:last-child]:flex-none">
                   <button onClick={() => setCancelTarget(o)} className="px-3 py-2.5 rounded-lg text-error hover:bg-error-container/60 font-semibold text-xs flex items-center gap-1">
                     <span className="material-symbols-outlined text-[18px]">cancel</span>Batalkan
                   </button>
-                  <button onClick={() => onPay(o.id)} className="px-4 py-2.5 rounded-lg bg-primary hover:brightness-105 active:scale-[0.98] text-on-primary font-bold shadow-sm flex items-center gap-1.5">
+                  <button onClick={() => onPay(o.id)} className="px-4 py-2.5 rounded-lg bg-primary hover:brightness-105 active:scale-[0.98] text-on-primary font-bold shadow-sm flex items-center justify-center gap-1.5">
                     <span className="material-symbols-outlined text-[20px]">payments</span>Proses Pembayaran
                   </button>
                 </div>
@@ -92,7 +90,6 @@ export default function Queue({ orders, onPay, onCreate, onCancel }) {
         })}
       </div>
 
-      {newOpen && <NewOrderModal onClose={() => setNewOpen(false)} onSave={(data) => { onCreate(data); setNewOpen(false) }} />}
       {cancelTarget && (
         <CancelOrderModal order={cancelTarget} onClose={() => setCancelTarget(null)}
           onConfirm={(reason) => { onCancel(cancelTarget, reason); setCancelTarget(null) }} />

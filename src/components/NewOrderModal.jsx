@@ -38,7 +38,7 @@ export default function NewOrderModal({ onSave, onClose }) {
     return (
         <>
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-inverse-surface/60 backdrop-blur-sm" onClick={onClose}>
-                <div className="w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-2xl flex flex-col max-h-[92vh]" onClick={(e) => e.stopPropagation()}>
+                <div className="w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-2xl flex flex-col max-h-[92dvh]" onClick={(e) => e.stopPropagation()}>
                     <div className="px-5 py-4 flex items-center justify-between">
                         <span className="text-lg font-semibold">Buat Antrean Baru</span>
                         <button onClick={onClose} aria-label="Tutup" className="w-8 h-8 rounded-lg hover:bg-surface-container flex items-center justify-center">
@@ -72,7 +72,7 @@ export default function NewOrderModal({ onSave, onClose }) {
                         ))}
                         {err && <p className="text-error text-xs font-semibold">{err}</p>}
                     </div>
-                    <div className="p-5 flex items-center gap-3">
+                    <div className="p-4 sm:p-5 flex flex-wrap items-center gap-3">
                         <div className="mr-auto">
                             <div className="text-[10px] text-on-surface-variant">Total (termasuk PPN 11%)</div>
                             <div className="text-[20px] font-extrabold">{rp(total)}</div>

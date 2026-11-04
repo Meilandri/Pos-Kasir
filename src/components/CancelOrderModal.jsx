@@ -15,11 +15,11 @@ export default function CancelOrderModal({ order, onConfirm, onClose }) {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-inverse-surface/60 backdrop-blur-sm" onClick={onClose}>
-            <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-2xl flex flex-col max-h-[92vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-2xl flex flex-col max-h-[92dvh]" onClick={(e) => e.stopPropagation()}>
                 <div className="px-5 pt-5 pb-2">
                     <div className="text-lg font-semibold">Batalkan Pesanan</div>
                     <p className="text-xs text-on-surface-variant mt-1">
-                        #{order.id} · {order.customer} · {rp(calcOrder(order).total)}
+                        #{order.id} · {order.customer || 'Tanpa nama'} · {rp(calcOrder(order).total)}
                     </p>
                 </div>
                 <div className="px-5 py-2 overflow-y-auto flex flex-col gap-2">

@@ -40,7 +40,7 @@ export default function History({ history }) {
 
   return (
     <div className="p-4 flex flex-col gap-4 max-w-[1720px] mx-auto">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Stat l="Total Omset Kasir (Sesi Ini)" v={rp(omset)} />
         <Stat l="Total Transaksi Lunas" v={paid.length} />
         <Stat l="Item Terjual" v={`${units} Unit`} />
@@ -51,7 +51,7 @@ export default function History({ history }) {
           <span className="material-symbols-outlined text-[20px] text-on-surface-variant mr-2">search</span>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari transaksi, pelanggan, sales, atau alasan..." className="w-full bg-transparent outline-none" />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1 bg-surface-container-low p-1 rounded-lg">
             <button className={chip('all')} onClick={() => setFilter('all')}>Semua ({history.length})</button>
             <button className={chip('paid')} onClick={() => setFilter('paid')}>Lunas ({paid.length})</button>
@@ -62,7 +62,42 @@ export default function History({ history }) {
           </button>
         </div>
       </div>
-      <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-x-auto">
+      {/* Tampilan HP: daftar kartu */}
+      <div className="md:hidden flex flex-col gap-3">
+        {rows.length === 0 && <p className="text-center text-on-surface-variant py-10">Belum ada data.</p>}
+        {rows.map((h) => {
+          const x = isCancelled(h)
+          return (
+            <div key={h.trx} className="bg-surface-container-lowest p-4 rounded-xl shadow-sm flex flex-col gap-2">
+              <div className="flex justify-between items-start gap-2">
+                <div>
+                  <div className={`font-mono font-bold text-xs ${x ? 'text-error' : ''}`}>#{h.trx}</div>
+                  <div className="text-[11px] text-on-surface-variant">{h.time.toLocaleTimeString('id-ID')}</div>
+                </div>
+                {x
+                  ? <span className="px-2.5 py-1 rounded-full bg-error-container text-on-error-container text-[10px] font-bold">DIBATALKAN</span>
+                  : <span className="px-2.5 py-1 rounded-full bg-success-container text-on-success-container text-[10px] font-bold">LUNAS</span>}
+              </div>
+              <div>
+                <div className="font-semibold">{h.order.customer || '-'}</div>
+                <div className="text-xs text-on-surface-variant">Sales: {h.order.sales}</div>
+              </div>
+              <div className="text-xs text-on-surface-variant">{h.order.items.map((i) => <div key={i.sku}>• {i.name} ({i.qty}x)</div>)}</div>
+              {x && <div className="text-xs text-on-surface-variant">Alasan: {h.reason}</div>}
+              <div className="flex items-center justify-between pt-2 border-t border-outline-variant/40">
+                <div>
+                  <div className={`font-bold ${x ? 'line-through text-on-surface-variant' : ''}`}>{rp(h.total)}</div>
+                  {!x && <div className="text-[11px] text-on-surface-variant">{METHODS.find((m) => m.id === h.method)?.label}</div>}
+                </div>
+                {!x && <button onClick={() => setOpen(h)} className="px-4 py-2 bg-primary-container hover:bg-primary text-on-primary rounded-lg text-xs font-semibold">Struk</button>}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Tampilan tablet/desktop: tabel */}
+      <div className="hidden md:block bg-surface-container-lowest rounded-xl shadow-sm overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-ink text-on-ink text-xs">
             <tr>{['No Transaksi', 'Sales', 'Pelanggan', 'Rincian Barang', 'Total Bayar', 'Metode', 'Status', 'Aksi'].map((h) => <th key={h} className="p-3 font-semibold whitespace-nowrap">{h}</th>)}</tr>
@@ -78,7 +113,7 @@ export default function History({ history }) {
                     <div className="text-xs text-on-surface-variant">{x && <>#{h.order.id} · </>}{h.time.toLocaleTimeString('id-ID')}</div>
                   </td>
                   <td className="p-3 font-semibold">{h.order.sales}</td>
-                  <td className="p-3"><div className="font-semibold">{h.order.customer}</div><div className="font-mono text-xs text-on-surface-variant">{h.order.phone}</div></td>
+                  <td className="p-3"><div className="font-semibold">{h.order.customer || '-'}</div><div className="font-mono text-xs text-on-surface-variant">{h.order.phone}</div></td>
                   <td className="p-3 text-xs">{h.order.items.map((i) => <div key={i.sku}>{i.qty}x {i.name}</div>)}</td>
                   <td className={`p-3 text-right font-bold whitespace-nowrap ${x ? 'text-on-surface-variant line-through' : ''}`}>{rp(h.total)}<div className="text-xs font-normal text-on-surface-variant no-underline">{h.units} Unit</div></td>
                   <td className="p-3 text-xs">{x ? '-' : METHODS.find((m) => m.id === h.method)?.label}</td>
@@ -107,5 +142,5 @@ export default function History({ history }) {
   )
 }
 const Stat = ({ l, v }) => (
-  <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm"><div className="text-xs font-semibold text-on-surface-variant">{l}</div><div className="text-[24px] font-bold">{v}</div></div>
+  <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm"><div className="text-xs font-semibold text-on-surface-variant">{l}</div><div className="text-[18px] sm:text-[24px] font-bold">{v}</div></div>
 )

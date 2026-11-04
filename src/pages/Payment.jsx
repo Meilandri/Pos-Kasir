@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { calcOrder, METHODS, parseRp, rp } from '../lib.js'
 import Receipt from '../components/Receipt.jsx'
-import EditCustomerModal from '../components/EditCustomerModal.jsx'
 import AddProductModal from '../components/AddProductModal.jsx'
 import CancelOrderModal from '../components/CancelOrderModal.jsx'
 import QtyInput from '../components/QtyInput.jsx'
@@ -17,7 +16,6 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
   const [cash, setCash] = useState('')
   const [result, setResult] = useState(null) // { ok: true } atau { ok: false, msg }
   const [trx, setTrx] = useState(null)        // data transaksi untuk struk
-  const [editInfo, setEditInfo] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
 
@@ -45,9 +43,11 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
     onUpdate({ ...order, delivery: d, ...(d === PICKUP ? { address: '-', shipping: 0 } : { address: order.address === '-' ? '' : order.address }) })
   const setAddress = (address) => onUpdate({ ...order, address })
   const setShipping = (v) => onUpdate({ ...order, shipping: parseRp(v) })
-  const saveInfo = (patch) => { onUpdate({ ...order, ...patch }); setEditInfo(false) }
 
   const confirm = () => {
+    if (!order.customer.trim() || !order.phone.trim()) {
+      return setResult({ ok: false, msg: 'Nama pembeli dan nomor telepon wajib diisi.' })
+    }
     if (!pickup && !(order.address || '').trim()) {
       return setResult({ ok: false, msg: 'Alamat pengiriman wajib diisi untuk Kurir Instan / Cargo.' })
     }
@@ -72,11 +72,11 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
   return (
     <>
       <div className="px-3 py-4 flex flex-col gap-4 max-w-[1600px] mx-auto">
-        <div className="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-xl shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 bg-surface-container-lowest p-3 rounded-xl shadow-sm">
           <button onClick={onBack} className="w-9 h-9 rounded-lg bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center">
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           </button>
-          <span className="text-lg font-semibold">Validasi &amp; Pelunasan Kasir</span>
+          <span className="text-base sm:text-lg font-semibold">Validasi &amp; Pelunasan Kasir</span>
           <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-semibold uppercase">Menunggu Pembayaran</span>
           <span className="ml-auto text-xs text-on-surface-variant">No. Pesanan: <strong className="text-on-surface">#{order.id}</strong> · Sales: <strong className="text-on-surface">{order.sales}</strong></span>
           <button onClick={() => setCancelOpen(true)} className="px-3 py-2 rounded-lg text-error hover:bg-error-container/60 text-xs font-semibold flex items-center gap-1">
@@ -90,13 +90,18 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <div className="font-semibold text-lg">Data Pelanggan</div>
-                <button onClick={() => setEditInfo(true)} className={editBtn}>
-                  <span className="material-symbols-outlined text-[16px]">edit</span>Ubah
-                </button>
               </div>
               <div className="p-3 bg-surface-container-low rounded-xl">
-                <div className="font-semibold">{order.customer}</div>
-                <div className="text-xs text-on-surface-variant">{order.phone}</div>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  <label className="flex flex-col gap-1 text-[11px] font-semibold">Nama pembeli
+                    <input value={order.customer} onChange={(e) => onUpdate({ ...order, customer: e.target.value })} placeholder="Nama pembeli"
+                      className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-sm font-normal outline-none focus:ring-2 focus:ring-primary-container" />
+                  </label>
+                  <label className="flex flex-col gap-1 text-[11px] font-semibold">No. telepon
+                    <input value={order.phone} onChange={(e) => onUpdate({ ...order, phone: e.target.value })} placeholder="+62 ..." inputMode="tel"
+                      className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-sm font-normal outline-none focus:ring-2 focus:ring-primary-container" />
+                  </label>
+                </div>
                 <div className="mt-2 p-2 bg-surface-container-lowest/60 rounded-lg flex flex-col gap-2">
                   <div className="text-xs font-semibold">Pilih Pengiriman</div>
                   <div className="grid grid-cols-3 gap-1.5">
@@ -229,7 +234,6 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
         )}
       </div>
 
-      {editInfo && <EditCustomerModal order={order} onSave={saveInfo} onClose={() => setEditInfo(false)} />}
       {addOpen && <AddProductModal items={order.items} onAdd={addProduct} onSetQty={setQty} onRemove={removeItem} minItems={1} onClose={() => setAddOpen(false)} />}
       {cancelOpen && <CancelOrderModal order={order} onConfirm={(r) => onCancel(order, r)} onClose={() => setCancelOpen(false)} />}
       {trx && <Receipt trx={trx} onClose={onDone} />}

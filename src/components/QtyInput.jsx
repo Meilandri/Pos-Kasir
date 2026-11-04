@@ -24,7 +24,7 @@ export default function QtyInput({ value, onChange, onRemove, min = 1, max = 999
 
     const atMin = value <= min
     const removable = atMin && !!onRemove
-    const btn = 'w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed'
+    const btn = 'w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high disabled:opacity-40 disabled:cursor-not-allowed'
     return (
         <div className="flex items-center bg-surface-container-lowest rounded-lg">
             <button type="button" onClick={() => (removable ? onRemove() : onChange(Math.max(min, value - 1)))}
@@ -40,7 +40,7 @@ export default function QtyInput({ value, onChange, onRemove, min = 1, max = 999
                 onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
                 inputMode="numeric"
                 aria-label="Jumlah barang"
-                className="w-12 h-8 text-center font-bold bg-transparent outline-none focus:ring-2 focus:ring-primary-container rounded"
+                className="w-12 h-10 sm:h-8 text-center font-bold bg-transparent outline-none focus:ring-2 focus:ring-primary-container rounded"
             />
             <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} aria-label="Tambah jumlah" className={btn}>
                 <span className="material-symbols-outlined text-[18px]">add</span>

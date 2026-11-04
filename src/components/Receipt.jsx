@@ -20,7 +20,7 @@ export default function Receipt({ trx, onClose }) {
 
   return createPortal(
     <div className="receipt-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 bg-inverse-surface/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="receipt-card w-full max-w-lg bg-surface-container-lowest rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]" onClick={(e) => e.stopPropagation()}>
+      <div className="receipt-card w-full max-w-lg bg-surface-container-lowest rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]" onClick={(e) => e.stopPropagation()}>
         <div className="no-print px-4 py-3 bg-surface-container-low flex justify-between items-center">
           <span className="text-lg font-semibold">Preview Struk Kasir</span>
           <button onClick={onClose} aria-label="Tutup" className="w-8 h-8 rounded-lg hover:bg-surface-container flex items-center justify-center">

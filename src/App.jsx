@@ -6,6 +6,7 @@ import Login from './pages/Login.jsx'
 import Queue from './pages/Queue.jsx'
 import Payment from './pages/Payment.jsx'
 import History from './pages/History.jsx'
+import NewOrder from './pages/NewOrder.jsx'
 
 // Simpan sesi login & halaman aktif di browser agar tidak hilang saat refresh
 const read = (k, fallback) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback } catch { return fallback } }
@@ -13,7 +14,7 @@ const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localSt
 
 export default function App() {
   const [cashier, setCashier] = useState(() => read('pos.cashier', null))      // { name, code }
-  const [page, setPage] = useState(() => read('pos.page', 'queue'))         // queue | payment | history
+  const [page, setPage] = useState(() => read('pos.page', 'queue'))         // queue | newOrder | payment | history
   // Antrean & riwayat disimpan di browser (localStorage) agar tidak hilang saat di-refresh
   const [orders, setOrders] = useState(() => {
     const saved = read('pos.orders', null)
@@ -28,7 +29,7 @@ export default function App() {
   const [activeId, setActiveId] = useState(null)
 
   // Halaman pembayaran tidak dipulihkan (butuh pesanan aktif), jadi kembali ke antrean
-  useEffect(() => { write('pos.page', page === 'payment' ? 'queue' : page) }, [page])
+  useEffect(() => { write('pos.page', page === 'payment' || page === 'newOrder' ? 'queue' : page) }, [page])
   useEffect(() => { if (page === 'payment' && !activeId) setPage('queue') }, [page, activeId])
   useEffect(() => { write('pos.orders', orders) }, [orders])
   useEffect(() => { write('pos.history', history) }, [history])
@@ -58,10 +59,17 @@ export default function App() {
   }
 
   // Buat antrean baru dari kasir (muncul paling atas)
-  const createOrder = (data) => {
+  const createOrder = (items) => {
     const nums = [...orders, ...history.map((h) => h.order)].map((o) => parseInt(o.id.replace(/\D/g, '')) || 0)
     const n = Math.max(21102800, ...nums) + 1
-    setOrders((os) => [{ id: `SLS-${n}`, spk: `OGN-${n}`, ago: 'Baru saja', ...data }, ...os])
+    // Data pembeli kosong: diisi manual di halaman pembayaran. Pengiriman awal: ambil mandiri.
+    const order = {
+      id: `SLS-${n}`, spk: `OGN-${n}`, ago: 'Baru saja', customer: '', phone: '', sales: '-', counter: 'Dibuat di kasir',
+      requested: 'Tunai (Cash)', delivery: 'Ambil Mandiri di Toko', address: '-', shipping: 0, discount: 0, items,
+    }
+    setOrders((os) => [order, ...os])
+    setActiveId(order.id)
+    setPage('payment')
   }
 
   // Batalkan pesanan: hapus dari antrean, catat ke riwayat beserta alasan
@@ -86,8 +94,9 @@ export default function App() {
     <>
       <Header page={page} setPage={setPage} cashier={cashier} queueCount={orders.length}
         onLogout={logout} />
-      <main className="pt-20 min-h-screen">
-        {page === 'queue' && <Queue orders={orders} onPay={startPayment} onCreate={createOrder} onCancel={cancelOrder} />}
+      <main className="pt-16 sm:pt-20 min-h-screen">
+        {page === 'queue' && <Queue orders={orders} onPay={startPayment} onNew={() => setPage('newOrder')} onCancel={cancelOrder} />}
+        {page === 'newOrder' && <NewOrder onBack={() => setPage('queue')} onCreate={createOrder} />}
         {page === 'payment' && active && (
           <Payment order={active} onBack={() => setPage('queue')} onUpdate={updateOrder}
             onCancel={(o, reason) => { cancelOrder(o, reason); setPage('queue') }}
