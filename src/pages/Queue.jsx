@@ -55,7 +55,7 @@ export default function Queue({ orders, onPay, onNew, onCancel }) {
           return (
             <div key={o.id} className="bg-surface-container-lowest p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
               <div className="flex justify-between items-start">
-                <span className="px-2.5 py-1 rounded-lg bg-surface-container-high font-mono font-bold text-xs">#{o.id}</span>
+                <div className="flex items-center gap-2 flex-wrap"><span className="px-2.5 py-1 rounded-lg bg-surface-container-high font-mono font-bold text-xs">#{o.id}</span>{o.mergedFrom?.length > 0 && <span className="px-2 py-1 rounded-lg bg-success-container text-on-success-container text-[11px] font-bold">Gabungan {o.mergedFrom.length + 1} pesanan</span>}</div>
                 <span className="text-[11px] text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-lg">{o.ago}</span>
               </div>
               <div className="grid sm:grid-cols-2 gap-3 p-2 rounded-xl bg-surface-container-low/40">

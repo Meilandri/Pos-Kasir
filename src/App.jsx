@@ -7,6 +7,7 @@ import Queue from './pages/Queue.jsx'
 import Payment from './pages/Payment.jsx'
 import History from './pages/History.jsx'
 import NewOrder from './pages/NewOrder.jsx'
+import { mergeInto } from './mergeOrders.js'
 
 // Simpan sesi login & halaman aktif di browser agar tidak hilang saat refresh
 const read = (k, fallback) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback } catch { return fallback } }
@@ -46,6 +47,16 @@ export default function App() {
   // Simpan perubahan detail pesanan (pembeli, pengiriman, barang) agar ikut tampil di antrean
   const updateOrder = (updated) =>
     setOrders((os) => os.map((o) => (o.id === updated.id ? updated : o)))
+
+  // Gabungkan pesanan `sourceId` ke pesanan `baseId` (pelanggan sama) menjadi 1 pesanan/struk
+  const mergeOrdersById = (baseId, sourceId) => {
+    const base = orders.find((o) => o.id === baseId)
+    const src = orders.find((o) => o.id === sourceId)
+    if (!base || !src) return
+    const merged = mergeInto(base, src)
+    setOrders((os) => os.filter((o) => o.id !== sourceId).map((o) => (o.id === baseId ? merged : o)))
+    setActiveId(baseId)
+  }
 
   // Catat transaksi ke riwayat. Pesanan BELUM dihapus dari antrean,
   // supaya halaman pembayaran tetap ada selama struk ditampilkan.
@@ -98,7 +109,7 @@ export default function App() {
         {page === 'queue' && <Queue orders={orders} onPay={startPayment} onNew={() => setPage('newOrder')} onCancel={cancelOrder} />}
         {page === 'newOrder' && <NewOrder onBack={() => setPage('queue')} onCreate={createOrder} />}
         {page === 'payment' && active && (
-          <Payment order={active} onBack={() => setPage('queue')} onUpdate={updateOrder}
+          <Payment order={active} onBack={() => setPage('queue')} onUpdate={updateOrder} orders={orders} onMerge={mergeOrdersById}
             onCancel={(o, reason) => { cancelOrder(o, reason); setPage('queue') }}
             onComplete={completePayment} onDone={() => finishPayment(active.id)} />
         )}

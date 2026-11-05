@@ -48,6 +48,7 @@ export default function Receipt({ trx, onClose }) {
               <L l="Sales" v={o.sales} />
               <L l="Pelanggan" v={o.customer} />
               <L l="Telepon" v={o.phone} />
+              {o.mergedFrom?.length > 0 && <L l="Gabungan" v={`${o.mergedFrom.length + 1} pesanan`} />}
             </div>
             <Dash />
 

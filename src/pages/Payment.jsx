@@ -4,12 +4,13 @@ import Receipt from '../components/Receipt.jsx'
 import AddProductModal from '../components/AddProductModal.jsx'
 import CancelOrderModal from '../components/CancelOrderModal.jsx'
 import QtyInput from '../components/QtyInput.jsx'
+import { sameCustomer } from '../mergeOrders.js'
 import { DELIVERY } from '../constants.js'
 
 const PICKUP = 'Ambil Mandiri di Toko'
 const DELIVERY_ICON = { 'Ambil Mandiri di Toko': 'storefront', 'Kurir Instan': 'two_wheeler', Cargo: 'local_shipping' }
 
-export default function Payment({ order, onBack, onUpdate, onCancel, onComplete, onDone }) {
+export default function Payment({ order, orders = [], onBack, onUpdate, onMerge, onCancel, onComplete, onDone }) {
   const c = calcOrder(order)
   const pickup = order.delivery === PICKUP
   const [method, setMethod] = useState('cash')
@@ -17,6 +18,7 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
   const [result, setResult] = useState(null) // { ok: true } atau { ok: false, msg }
   const [trx, setTrx] = useState(null)        // data transaksi untuk struk
   const [addOpen, setAddOpen] = useState(false)
+  const [mergeNote, setMergeNote] = useState('')
   const [cancelOpen, setCancelOpen] = useState(false)
 
   const received = method === 'cash' ? parseRp(cash) : c.total
@@ -43,6 +45,14 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
     onUpdate({ ...order, delivery: d, ...(d === PICKUP ? { address: '-', shipping: 0 } : { address: order.address === '-' ? '' : order.address }) })
   const setAddress = (address) => onUpdate({ ...order, address })
   const setShipping = (v) => onUpdate({ ...order, shipping: parseRp(v) })
+
+  // Jika nama + telepon sama dengan pesanan lain di antrean, gabungkan otomatis jadi 1 struk
+  const tryMerge = () => {
+    const other = orders.find((o) => o.id !== order.id && sameCustomer(o, order))
+    if (!other) return
+    onMerge(other.id, order.id)
+    setMergeNote(`Pelanggan ini sudah punya pesanan #${other.id}. Pesanan digabung menjadi 1 struk (Sales: ${other.sales}).`)
+  }
 
   const confirm = () => {
     if (!order.customer.trim() || !order.phone.trim()) {
@@ -91,14 +101,15 @@ export default function Payment({ order, onBack, onUpdate, onCancel, onComplete,
               <div className="flex items-center justify-between mb-2">
                 <div className="font-semibold text-lg">Data Pelanggan</div>
               </div>
+              {mergeNote && <div className="mb-2 p-3 rounded-lg bg-success-container text-on-success-container text-xs font-semibold">{mergeNote}</div>}
               <div className="p-3 bg-surface-container-low rounded-xl">
                 <div className="grid sm:grid-cols-2 gap-2">
                   <label className="flex flex-col gap-1 text-[11px] font-semibold">Nama pembeli
-                    <input value={order.customer} onChange={(e) => onUpdate({ ...order, customer: e.target.value })} placeholder="Nama pembeli"
+                    <input value={order.customer} onChange={(e) => onUpdate({ ...order, customer: e.target.value })} placeholder="Nama pembeli" onBlur={tryMerge}
                       className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-sm font-normal outline-none focus:ring-2 focus:ring-primary-container" />
                   </label>
                   <label className="flex flex-col gap-1 text-[11px] font-semibold">No. telepon
-                    <input value={order.phone} onChange={(e) => onUpdate({ ...order, phone: e.target.value })} placeholder="+62 ..." inputMode="tel"
+                    <input value={order.phone} onChange={(e) => onUpdate({ ...order, phone: e.target.value })} placeholder="+62 ..." inputMode="tel" onBlur={tryMerge}
                       className="w-full bg-surface-container-lowest rounded-lg px-3 py-2 text-sm font-normal outline-none focus:ring-2 focus:ring-primary-container" />
                   </label>
                 </div>
