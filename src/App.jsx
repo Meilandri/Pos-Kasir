@@ -31,9 +31,10 @@ export default function App() {
 
   // Halaman pembayaran tidak dipulihkan (butuh pesanan aktif), jadi kembali ke antrean
   useEffect(() => { write('pos.page', page === 'payment' || page === 'newOrder' ? 'queue' : page) }, [page])
-  useEffect(() => { if (page === 'payment' && !activeId) setPage('queue') }, [page, activeId])
   useEffect(() => { write('pos.orders', orders) }, [orders])
   useEffect(() => { write('pos.history', history) }, [history])
+
+  const currentPage = (page === 'payment' && !activeId) ? 'queue' : page
 
   const login = (c) => { write('pos.cashier', c); setCashier(c) }
   const logout = () => { write('pos.cashier', null); setCashier(null); setPage('queue') }
@@ -103,17 +104,17 @@ export default function App() {
 
   return (
     <>
-      <Header page={page} setPage={setPage} cashier={cashier} queueCount={orders.length}
+      <Header page={currentPage} setPage={setPage} cashier={cashier} queueCount={orders.length}
         onLogout={logout} />
       <main className="pt-16 sm:pt-20 min-h-screen">
-        {page === 'queue' && <Queue orders={orders} onPay={startPayment} onNew={() => setPage('newOrder')} onCancel={cancelOrder} />}
-        {page === 'newOrder' && <NewOrder onBack={() => setPage('queue')} onCreate={createOrder} />}
-        {page === 'payment' && active && (
+        {currentPage === 'queue' && <Queue orders={orders} onPay={startPayment} onNew={() => setPage('newOrder')} onCancel={cancelOrder} />}
+        {currentPage === 'newOrder' && <NewOrder onBack={() => setPage('queue')} onCreate={createOrder} />}
+        {currentPage === 'payment' && active && (
           <Payment order={active} onBack={() => setPage('queue')} onUpdate={updateOrder} orders={orders} onMerge={mergeOrdersById}
             onCancel={(o, reason) => { cancelOrder(o, reason); setPage('queue') }}
             onComplete={completePayment} onDone={() => finishPayment(active.id)} />
         )}
-        {page === 'history' && <History history={history} />}
+        {currentPage === 'history' && <History history={history} />}
       </main>
     </>
   )

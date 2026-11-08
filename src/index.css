@@ -2,76 +2,142 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Palet HEXA ~60:30:10 = putih/silver : hitam : merah.
-   Merah hanya lewat token "accent"; tombol/pilihan umum memakai hitam (primary) dan silver. */
+/* ==========================================================================
+   QUARZA — Furniture & Living
+   Theme: Warm Earthy (Modern Minimalist + Premium)
+   Palet Warna:
+   - Light Mode:
+       Cream:    #F9F7F2 (rgb: 249 247 242) -> Canvas & Surface
+       Sand:     #E8DDD0 (rgb: 232 221 208) -> Surface Container / Borders
+       Beige:    #D7B899 (rgb: 215 184 153) -> Secondary Containers / Highlights
+       Caramel:  #B57F57 (rgb: 181 127 87)  -> Warm Focal Accent & Badges
+       Mocha:    #6F4E37 (rgb: 111 78 55)   -> Primary CTAs & Deep Luxury Tone
+       Charcoal: #3A2F27 (rgb: 58 47 39)    -> Ink, Master Headers & Typography
+   - Dark Mode:
+       Dark Brown: #1A120D (rgb: 26 18 13)  -> Canvas & Dark Surface
+       Coffee:     #2D1F17 (rgb: 45 31 23)  -> Surface Containers & Cards
+       Mocha:      #5B3F2E (rgb: 91 63 46)  -> Elevated Containers & High Borders
+       Caramel:    #A67C52 (rgb: 166 124 82)-> Accent CTAs & Highlights
+       Beige:      #DCC6A4 (rgb: 220 198 164)-> Secondary Typography & Labels
+       Cream:      #F9F7F2 (rgb: 249 247 242)-> High Contrast Pure Typography
+   ========================================================================== */
+
 :root {
     color-scheme: light;
-    --surface: 245 246 248;
-    --primary: 17 19 24;
-    --secondary: 43 47 54;
-    --tertiary: 138 81 0;
-    --error: 194 65 12;
-    --accent: 208 0 0;
-    --on-primary: 255 255 255;
+    /* Base background: Warm Cream (#F9F7F2) */
+    --surface: 249 247 242;
+
+    /* Primary actions: Deep Warm Mocha (#6F4E37) */
+    --primary: 111 78 55;
+    --on-primary: 249 247 242;
+
+    /* Secondary actions: Warm Charcoal (#3A2F27) */
+    --secondary: 58 47 39;
+    --on-secondary: 249 247 242;
+
+    /* Accent color: Warm Caramel (#B57F57) */
+    --accent: 181 127 87;
+
+    /* Typography: Charcoal (#3A2F27) */
+    --on-surface: 58 47 39;
+    --on-surface-variant: 120 106 95;
+
+    /* Primary container */
+    --primary-container: 111 78 55;
+    --on-primary-container: 249 247 242;
+    --primary-fixed: 232 221 208;
+
+    /* Secondary container: Sand (#E8DDD0) */
+    --secondary-container: 232 221 208;
+    --on-secondary-container: 58 47 39;
+
+    /* Tertiary: Caramel & Beige */
+    --tertiary: 181 127 87;
+    --tertiary-container: 215 184 153;
+
+    /* Status colors with warm earthy harmonized hues */
+    --error: 185 64 54;
+    --error-container: 250 234 232;
     --on-error: 255 255 255;
-    --on-surface: 17 19 24;
-    --on-surface-variant: 91 97 107;
-    --primary-container: 43 47 54;
-    --on-primary-container: 255 255 255;
-    --primary-fixed: 227 229 234;
-    --secondary-container: 227 229 234;
-    --on-secondary-container: 43 47 54;
-    --tertiary-container: 228 146 0;
-    --error-container: 255 237 213;
-    --on-error-container: 124 45 18;
-    --success: 21 128 61;
-    --success-container: 220 252 231;
-    --on-success-container: 20 83 45;
-    --ink: 17 19 24;
-    --on-ink: 255 255 255;
+    --on-error-container: 130 35 28;
+
+    --success: 68 116 82;
+    --success-container: 232 243 234;
+    --on-success-container: 32 70 44;
+
+    /* Top master bar / Navigation: Charcoal (#3A2F27) */
+    --ink: 58 47 39;
+    --on-ink: 249 247 242;
+
+    /* Surfaces */
     --surface-container-lowest: 255 255 255;
-    --surface-container-low: 240 241 244;
-    --surface-container: 231 233 237;
-    --surface-container-high: 223 226 231;
-    --surface-container-highest: 211 215 222;
-    --outline-variant: 196 200 208;
-    --inverse-surface: 11 12 15;
-    --inverse-on-surface: 240 241 244;
+    --surface-container-low: 244 240 234;
+    --surface-container: 232 221 208;
+    --surface-container-high: 224 211 196;
+    --surface-container-highest: 215 184 153;
+
+    --outline-variant: 220 207 192;
+    --inverse-surface: 58 47 39;
+    --inverse-on-surface: 249 247 242;
 }
 
 .dark {
     color-scheme: dark;
-    --surface: 15 16 18;
-    --primary: 228 230 235;
-    --secondary: 255 255 255;
-    --tertiary: 255 185 95;
-    --error: 251 146 60;
-    --accent: 229 57 53;
-    --on-primary: 17 19 24;
-    --on-error: 67 20 7;
-    --on-surface: 236 236 239;
-    --on-surface-variant: 162 167 176;
-    --primary-container: 211 215 222;
-    --on-primary-container: 17 19 24;
-    --primary-fixed: 49 52 58;
-    --secondary-container: 42 44 49;
-    --on-secondary-container: 201 204 211;
-    --tertiary-container: 228 146 0;
-    --error-container: 124 45 18;
-    --on-error-container: 255 237 213;
-    --success: 74 222 128;
-    --success-container: 20 83 45;
-    --on-success-container: 187 247 208;
-    --ink: 0 0 0;
-    --on-ink: 255 255 255;
-    --surface-container-lowest: 10 10 11;
-    --surface-container-low: 23 24 27;
-    --surface-container: 29 30 34;
-    --surface-container-high: 38 40 45;
-    --surface-container-highest: 49 52 58;
-    --outline-variant: 61 64 71;
-    --inverse-surface: 0 0 0;
-    --inverse-on-surface: 236 236 239;
+    /* Base background: Dark Brown (#1A120D) */
+    --surface: 26 18 13;
+
+    /* Primary actions: Warm Caramel (#A67C52) */
+    --primary: 166 124 82;
+    --on-primary: 26 18 13;
+
+    /* Secondary: Warm Beige (#DCC6A4) */
+    --secondary: 220 198 164;
+    --on-secondary: 26 18 13;
+
+    /* Accent color: Caramel (#A67C52) */
+    --accent: 166 124 82;
+
+    /* Typography: Cream (#F9F7F2) and Beige (#DCC6A4) */
+    --on-surface: 249 247 242;
+    --on-surface-variant: 186 170 154;
+
+    /* Primary container: Mocha (#5B3F2E) */
+    --primary-container: 91 63 46;
+    --on-primary-container: 249 247 242;
+    --primary-fixed: 91 63 46;
+
+    /* Secondary container: Coffee (#2D1F17) */
+    --secondary-container: 45 31 23;
+    --on-secondary-container: 220 198 164;
+
+    /* Tertiary: Beige (#DCC6A4) */
+    --tertiary: 220 198 164;
+    --tertiary-container: 91 63 46;
+
+    /* Status colors */
+    --error: 238 116 104;
+    --error-container: 74 27 23;
+    --on-error: 255 255 255;
+    --on-error-container: 255 212 208;
+
+    --success: 108 178 128;
+    --success-container: 30 58 38;
+    --on-success-container: 212 246 222;
+
+    /* Top master bar / Navigation: Dark Brown (#1A120D) */
+    --ink: 26 18 13;
+    --on-ink: 249 247 242;
+
+    /* Surfaces */
+    --surface-container-lowest: 20 14 10;
+    --surface-container-low: 36 25 18;
+    --surface-container: 45 31 23;
+    --surface-container-high: 68 47 35;
+    --surface-container-highest: 91 63 46;
+
+    --outline-variant: 91 63 46;
+    --inverse-surface: 249 247 242;
+    --inverse-on-surface: 26 18 13;
 }
 
 body {
@@ -87,7 +153,6 @@ body {
 
 /* HP: ukuran font input minimal 16px agar iOS tidak zoom otomatis saat mengetik */
 @media (max-width: 640px) {
-
     input,
     select,
     textarea {
